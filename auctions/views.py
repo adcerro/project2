@@ -1,10 +1,11 @@
+from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Category
 
 
 def index(request):
@@ -61,3 +62,15 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+    
+class CreateAuction(forms.Form):
+    title = forms.CharField(label="Title")
+    description = forms.CharField(label="Description")
+    image = forms.URLField(label="Image URL")
+    category = forms.ChoiceField(label="Category", choices=Category.objects.all())
+    price = forms.DecimalField(label="Starting Bid")
+
+def create(request):
+    return render(request, "auctions/create.html", {
+        "form": CreateAuction()
+    })
