@@ -17,7 +17,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{% url 'index' %}">Active Listings</a>
                         </li>
@@ -26,24 +26,24 @@
                                 <a class="nav-link active" aria-current="page" href="{% url 'create' %}">Create Listing</a>
                             </li>
                         {% endif %}
-                        <li class="nav-item dropdown">
-                            <button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            {% if user.is_authenticated %}
-                                <strong>{{ user.username }}</strong>
-                            {% else %}
-                                Not signed in
-                            {% endif %}
-                            </button>
-                            <ul class="dropdown-menu">
-                            {% if user.is_authenticated %}
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
-                            {% else %}
-                                <li><a class="dropdown-item" href="{% url 'login' %}">Log In</a></li>
-                                <li><a class="dropdown-item" href="{% url 'register' %}">Register</a></li>
-                            {% endif %}
-                            </ul>
-                        </li>
                     </ul>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if user.is_authenticated %}
+                            <strong>{{ user.username }}</strong>
+                        {% else %}
+                            Not signed in
+                        {% endif %}
+                        </button>
+                        <ul class="dropdown-menu">
+                        {% if user.is_authenticated %}
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{% url 'login' %}">Log In</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register' %}">Register</a></li>
+                        {% endif %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
