@@ -71,13 +71,14 @@ class CreateAuction(forms.Form):
     description = forms.CharField(widget=forms.TextInput(attrs=common),label="description")
     image = forms.URLField(widget=forms.URLInput(attrs=common),label="image uRL",required=False)
     category = forms.ModelChoiceField(Category.objects.all(),widget=forms.Select(attrs={"class": "form-select"}),required=False,label="category")
-    price = forms.DecimalField(widget=forms.NumberInput(attrs=common),label="starting bid")
+    price = forms.DecimalField(max_digits=11,decimal_places=2,widget=forms.NumberInput(attrs=common),label="starting bid")
 
 @login_required
 def create(request):
     if request.method == "POST":
         form = CreateAuction(request.POST)
         if form.is_valid():
+            print(type(form.cleaned_data["price"]))
             auction = Auction(product=form.cleaned_data["title"],
                               description=form.cleaned_data["description"],
                               image=form.cleaned_data["image"],
