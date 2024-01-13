@@ -3,5 +3,20 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    {% for auction in auctions %}
+    <div class="card my-3">
+        <div class="row g-0">
+          <div class="col-md-2">
+            <img src="{{auction.image}}" class="img-fluid rounded-start" alt="An image of the product">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <a class="card-title stretched-link" href="{% url 'auction' auction.id %}">{{auction.product}}</a>
+              <h6 class="card-text">{{Bid.objects.all}}</h6>
+              <p class="card-text">{{auction.description}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
 {% endblock %}

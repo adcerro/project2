@@ -1,0 +1,14 @@
+{% extends 'auctions/layout.html'%}
+{% block body %}
+<div class="row my-2">
+    <div class="col-6">
+        <img class="img-fluid"src="{{auction.image}}">
+    </div>
+    <div class="col-md-auto">
+        <h1>{{auction.product}}</h1>
+        <p>{{auction.description}}</p>
+        <p>Listed by {{auction.author}}</p>
+        <p>Current bid: {{bid}}</p>
+    </div>
+</div>
+{% endblock %}

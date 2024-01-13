@@ -1,16 +1,19 @@
 from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
 
-from .models import User, Category,Auction
+from .models import User, Category,Auction, Bid
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html",{
+        "auctions": Auction.objects.all()
+    })
 
 
 def login_view(request):
@@ -73,18 +76,48 @@ class CreateAuction(forms.Form):
     category = forms.ModelChoiceField(Category.objects.all(),widget=forms.Select(attrs={"class": "form-select"}),required=False,label="category")
     price = forms.DecimalField(max_digits=11,decimal_places=2,widget=forms.NumberInput(attrs=common),label="starting bid")
 
+def auction(request,id):
+    try:
+        auction = Auction.objects.get(pk=id)
+        topbid = Bid.objects.filter(auction=auction).annotate(Max("ammount"))[0].ammount
+        print(Bid.objects.filter(auction=auction).annotate(Max("ammount")))
+        if not topbid or topbid<auction.initialBid:
+            bid = auction.initialBid
+        else:
+            bid = topbid
+        return render(request,"auctions/auction.html",{
+        "auction": auction,
+        "bid": bid,
+    })
+    except Exception as e:
+        print(e)
+        return HttpResponseNotFound()
+
 @login_required
 def create(request):
     if request.method == "POST":
         form = CreateAuction(request.POST)
         if form.is_valid():
-            print(type(form.cleaned_data["price"]))
-            auction = Auction(product=form.cleaned_data["title"],
+            image=form.cleaned_data["image"]
+            if image == "":
+                image = "https://photo-cdn2.icons8.com/kjvYiCHJIM8GF8Jh9fG0WFLr2otH4tU9PkmP31Ypbeo/rs:fit:288:192/czM6Ly9pY29uczgu/bW9vc2UtcHJvZC5l/eHRlcm5hbC9hMmE0/Mi83ZTUyYjc1MTk1/Nzc0MDA0OWI1NzMx/NmI3NDRkNGMzZi5q/cGc.webp"
+            
+            auction = Auction(author=request.user,
+                              product=form.cleaned_data["title"],
                               description=form.cleaned_data["description"],
                               image=form.cleaned_data["image"],
                               category=form.cleaned_data["category"],
-                              price=round(form.cleaned_data["price"],2))
+                              initialBid=round(form.cleaned_data["price"],2))
             auction.save()
+            return HttpResponseRedirect(reverse("index"))
     return render(request, "auctions/create.html", {
         "form": CreateAuction()
     })
+def categories(request):
+    return render(request,"auctions/categories.html",{
+        "categories" : Category.objects.all()
+    })
+@login_required
+def watchlist(request):
+
+    pass

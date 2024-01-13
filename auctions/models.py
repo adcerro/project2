@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    pass 
 
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
@@ -12,13 +12,20 @@ class Category(models.Model):
         return self.name
 
 class Auction(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="auctions")
     product = models.TextField()
     description = models.TextField()
     image = models.URLField(null=True)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL, related_name="auctions",null=True)
-    price = models.DecimalField(max_digits=11, decimal_places=2)
+    initialBid = models.DecimalField(max_digits=11, decimal_places=2)
     def __str__(self):
-        return f"{self.product} - {self.price}"
+        return f"{self.product} - {self.initialBid}"
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist",primary_key=True)
+    auctions = models.ManyToManyField(Auction, blank=True, related_name="watchlist",null=True)
+    def __str__(self):
+        return f"{self.user} - {self.auctions}"
 
 class Bid(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="bids",null=True)
