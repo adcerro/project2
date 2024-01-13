@@ -4,8 +4,9 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
-from .models import User, Category
+from .models import User, Category,Auction
 
 
 def index(request):
@@ -63,14 +64,26 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
     
-class CreateAuction(forms.Form):
-    title = forms.CharField(label="Title")
-    description = forms.CharField(label="Description")
-    image = forms.URLField(label="Image URL")
-    category = forms.ChoiceField(label="Category", choices=Category.objects.all())
-    price = forms.DecimalField(label="Starting Bid")
+common = {"class": "form-control"}
 
+class CreateAuction(forms.Form):
+    title = forms.CharField(widget=forms.TextInput(attrs=common),label="title")
+    description = forms.CharField(widget=forms.TextInput(attrs=common),label="description")
+    image = forms.URLField(widget=forms.URLInput(attrs=common),label="image uRL",required=False)
+    category = forms.ModelChoiceField(Category.objects.all(),widget=forms.Select(attrs={"class": "form-select"}),required=False,label="category")
+    price = forms.DecimalField(widget=forms.NumberInput(attrs=common),label="starting bid")
+
+@login_required
 def create(request):
+    if request.method == "POST":
+        form = CreateAuction(request.POST)
+        if form.is_valid():
+            auction = Auction(product=form.cleaned_data["title"],
+                              description=form.cleaned_data["description"],
+                              image=form.cleaned_data["image"],
+                              category=form.cleaned_data["category"],
+                              price=round(form.cleaned_data["price"],2))
+            auction.save()
     return render(request, "auctions/create.html", {
         "form": CreateAuction()
     })

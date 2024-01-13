@@ -3,7 +3,11 @@
 Create Listing
 {% endblock %}
 {% block body %}
-<form>
+<form method="post">
+    {% csrf_token %}
 {{form}}
+<div class="d-grid gap-2">
+    <input type="submit" value="Create Listing" class="btn btn-primary my-3">
+</div>
 </form>
 {% endblock %}
