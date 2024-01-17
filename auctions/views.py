@@ -9,7 +9,6 @@ from django.db.models import Max
 
 from .models import User, Category,Auction, Bid
 
-
 def index(request):
     return render(request, "auctions/index.html",{
         "auctions": Auction.objects.all()
@@ -77,6 +76,7 @@ class CreateAuction(forms.Form):
     price = forms.DecimalField(max_digits=11,decimal_places=2,widget=forms.NumberInput(attrs=common),label="starting bid")
 
 def auction(request,id):
+    '''
     try:
         auction = Auction.objects.get(pk=id)
         topbid = Bid.objects.filter(auction=auction).annotate(Max("ammount"))[0].ammount
@@ -91,7 +91,8 @@ def auction(request,id):
     })
     except Exception as e:
         print(e)
-        return HttpResponseNotFound()
+    '''
+    return HttpResponseNotFound()
 
 @login_required
 def create(request):
@@ -107,8 +108,10 @@ def create(request):
                               description=form.cleaned_data["description"],
                               image=form.cleaned_data["image"],
                               category=form.cleaned_data["category"],
-                              initialBid=round(form.cleaned_data["price"],2))
+                              initialBid=form.cleaned_data["price"])
             auction.save()
+            initialBid = Bid(user=request.user,auction=auction,ammount=form.cleaned_data["price"])
+            initialBid.save()
             return HttpResponseRedirect(reverse("index"))
     return render(request, "auctions/create.html", {
         "form": CreateAuction()
@@ -119,5 +122,6 @@ def categories(request):
     })
 @login_required
 def watchlist(request):
-
-    pass
+    return render(request,"auctions/watchlist.html",{
+        "watchlist": request.user.watchlist.all()
+    })
