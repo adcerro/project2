@@ -10,8 +10,11 @@ from django.db.models import Max
 from .models import User, Category,Auction, Bid
 
 def index(request):
+    data = {}
+    for entry in Bid.objects.values('auction').annotate(maxbid=Max('ammount')):
+        data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
     return render(request, "auctions/index.html",{
-        "auctions": Auction.objects.all()
+        "entries": data
     })
 
 
@@ -76,11 +79,9 @@ class CreateAuction(forms.Form):
     price = forms.DecimalField(max_digits=11,decimal_places=2,widget=forms.NumberInput(attrs=common),label="starting bid")
 
 def auction(request,id):
-    '''
     try:
         auction = Auction.objects.get(pk=id)
-        topbid = Bid.objects.filter(auction=auction).annotate(Max("ammount"))[0].ammount
-        print(Bid.objects.filter(auction=auction).annotate(Max("ammount")))
+        topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0].ammount
         if not topbid or topbid<auction.initialBid:
             bid = auction.initialBid
         else:
@@ -91,8 +92,7 @@ def auction(request,id):
     })
     except Exception as e:
         print(e)
-    '''
-    return HttpResponseNotFound()
+        return HttpResponseNotFound()
 
 @login_required
 def create(request):

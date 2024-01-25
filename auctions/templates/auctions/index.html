@@ -3,7 +3,7 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    {% for auction in auctions %}
+    {% for auction,bid in entries.items %}
     <div class="card my-3">
         <div class="row g-0">
           <div class="col-md-2">
@@ -12,7 +12,7 @@
           <div class="col-md-8">
             <div class="card-body">
               <a class="card-title stretched-link" href="{% url 'auction' auction.id %}">{{auction.product}}</a>
-              <h6 class="card-text">{{Bid.objects.all}}</h6>
+              <h6 class="card-text">Highest Bid: ${{bid}}</h6>
               <p class="card-text">{{auction.description}}</p>
             </div>
           </div>
