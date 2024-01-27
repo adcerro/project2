@@ -122,6 +122,9 @@ def categories(request):
     })
 @login_required
 def watchlist(request):
+    data = {}
+    for entry in Bid.objects.filter(auction__in=request.user.watchlist.all()).values('auction').annotate(maxbid=Max('ammount')):
+        data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
     return render(request,"auctions/watchlist.html",{
-        "watchlist": request.user.watchlist.all()
+        "watchlist": data
     })
