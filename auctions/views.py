@@ -17,7 +17,6 @@ def index(request):
         "entries": data
     })
 
-
 def login_view(request):
     if request.method == "POST":
 
@@ -86,9 +85,14 @@ def auction(request,id):
             bid = auction.initialBid
         else:
             bid = topbid
+        if request.user.is_anonymous:
+            return render(request,"auctions/auction.html",{"auction": auction,"bid": bid,"logged" : False})
+        
         return render(request,"auctions/auction.html",{
         "auction": auction,
         "bid": bid,
+        "logged" : True,
+        "watchlist": auction in request.user.watchlist.all()
     })
     except Exception as e:
         print(e)
@@ -116,10 +120,21 @@ def create(request):
     return render(request, "auctions/create.html", {
         "form": CreateAuction()
     })
+
 def categories(request):
     return render(request,"auctions/categories.html",{
         "categories" : Category.objects.all()
     })
+
+def category(request,id):
+    data = {}
+    for entry in Bid.objects.filter(auction__category__id=id).values('auction').annotate(maxbid=Max('ammount')):
+        data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
+    return render(request,"auctions/category.html",{
+        "entries": data,
+        "category": Category.objects.get(id=id)
+    })
+
 @login_required
 def watchlist(request):
     data = {}
