@@ -3,10 +3,16 @@
     Categories
 {% endblock %}
 {% block body %}
-    <h2>Categories</h2>
-    <ul>
-        {% for category in categories %}
-            <li><a href="{% url 'category' category.id %}">{{category.name}}</a></li>
+    <h2 class="text-center">Categories</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+    {% for category in categories %}
+        <div class="col">
+            <div class="card text-center my-3">
+                <div class="card-body">
+                    <a class="card-title stretched-link" href="{% url 'category' category.id %}">{{category.name}}</a>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}
