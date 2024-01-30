@@ -77,11 +77,21 @@ class CreateAuction(forms.Form):
     category = forms.ModelChoiceField(Category.objects.all(),widget=forms.Select(attrs={"class": "form-select"}),required=False,label="category")
     price = forms.DecimalField(max_digits=11,decimal_places=2,widget=forms.NumberInput(attrs=common),label="starting bid")
 
-class watchlistForm(forms.Form):
-    pass
+@login_required
+def add(request,id):
+    if request.method == "POST":
+        request.user.watchlist.add(Auction.objects.get(pk=id))
+    return HttpResponseRedirect(reverse("auction",args={id}))
+
+@login_required
+def remove(request,id):
+    if request.method == "POST":
+        request.user.watchlist.remove(Auction.objects.get(pk=id))
+    return HttpResponseRedirect(reverse("auction",args={id}))
+
 def auction(request,id):
     if request.method == "POST":
-        pass
+        print("post")
     try:
         auction = Auction.objects.get(pk=id)
         topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0].ammount

@@ -10,14 +10,17 @@
         <p>Listed by {{auction.author}}</p>
         <p>Highest bid: <strong>${{bid}}</strong></p>
         {% if logged %}
-        <form method="post">
-            {% csrf_token %}
         {% if watchlist %}
+        <form method="post" action="{% url 'remove' auction.id%}">
+        {% csrf_token %}
         <button type="submit" class="btn btn-danger">Remove from watchlist</button>
-        {% else %}
-        <button type="submit" class="btn btn-success">Add to watchlist</button>
-        {% endif %}
         </form>
+        {% else %}
+        <form method="post" action="{% url 'add'  auction.id%}">
+            {% csrf_token %}
+        <button type="submit" class="btn btn-success">Add to watchlist</button>
+        </form>
+        {% endif %}
         {% endif %}
     </div>
 </div>
