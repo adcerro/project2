@@ -11,8 +11,8 @@ from .models import User, Category,Auction, Bid
 
 def index(request):
     data = {}
-    #for entry in Bid.objects.filter(auction__in=Auction.objects.filter(active=True)).values('auction').annotate(maxbid=Max('ammount')):
-    #    data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
+    for entry in Bid.objects.filter(auction__in=Auction.objects.filter(active=True)).values('auction').annotate(maxbid=Max('ammount')):
+        data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
     return render(request, "auctions/index.html",{
         "entries": data
     })
@@ -89,6 +89,7 @@ def remove(request,id):
         request.user.watchlist.remove(Auction.objects.get(pk=id))
     return HttpResponseRedirect(reverse("auction",args={id}))
 
+
 def auction(request,id):
     if request.method == "POST":
         print("post")
@@ -135,6 +136,14 @@ def create(request):
     return render(request, "auctions/create.html", {
         "form": CreateAuction()
     })
+
+@login_required
+def close(request,id):
+    if request.method == "POST" and Auction.objects.get(pk=id).author == request.user:
+        auction = Auction.objects.get(pk=id)
+        auction.active = False
+        auction.save()
+    return HttpResponseRedirect(reverse("auction",args={id}))
 
 def categories(request):
     return render(request,"auctions/categories.html",{

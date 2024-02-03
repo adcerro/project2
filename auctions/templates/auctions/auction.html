@@ -8,25 +8,26 @@
         <h1>{{auction.product}}</h1>
         <p>{{auction.description}}</p>
         <p>Listed by {{auction.author}}</p>
+        <p>Category: {{auction.category}}</p>
         <p>Highest bid: <strong>${{bid}}</strong></p>
+        {% if logged %}
         <div class="row my-1">
             <div class="col">
-                {% if logged %}
-                {% if watchlist %}
-                    <form method="post" action="{% url 'remove' auction.id%}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Remove from watchlist</button>
-                    </form>
-                {% else %}
-                    <form method="post" action="{% url 'add'  auction.id%}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success">Add to watchlist</button>
-                    </form>
-                {% endif %}
+            {% if watchlist %}
+                <form method="post" action="{% url 'remove' auction.id%}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Remove from watchlist</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'add'  auction.id%}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Add to watchlist</button>
+                </form>
+            {% endif %}
             </div>
+            {% if isAuthor and auction.active %}
             <div class="col">
-                {% if isAuthor %}
-                <form method="post">
+                <form method="post" action="{% url 'close'  auction.id%}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">Close Auction</button>
                 </form>
@@ -34,9 +35,9 @@
             <div class="col col-lg-7">
 
             </div>
-        {% endif %}
-        {% endif %}
+            {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
