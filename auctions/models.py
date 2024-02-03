@@ -18,6 +18,7 @@ class Auction(models.Model):
     image = models.URLField(null=True)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL, related_name="auctions",null=True)
     initialBid = models.DecimalField(max_digits=11, decimal_places=2)
+    active = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.product} - {self.initialBid}"
 

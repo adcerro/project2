@@ -9,19 +9,34 @@
         <p>{{auction.description}}</p>
         <p>Listed by {{auction.author}}</p>
         <p>Highest bid: <strong>${{bid}}</strong></p>
-        {% if logged %}
-        {% if watchlist %}
-        <form method="post" action="{% url 'remove' auction.id%}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Remove from watchlist</button>
-        </form>
-        {% else %}
-        <form method="post" action="{% url 'add'  auction.id%}">
-            {% csrf_token %}
-        <button type="submit" class="btn btn-success">Add to watchlist</button>
-        </form>
+        <div class="row my-1">
+            <div class="col">
+                {% if logged %}
+                {% if watchlist %}
+                    <form method="post" action="{% url 'remove' auction.id%}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Remove from watchlist</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'add'  auction.id%}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Add to watchlist</button>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="col">
+                {% if isAuthor %}
+                <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Close Auction</button>
+                </form>
+            </div>
+            <div class="col col-lg-7">
+
+            </div>
         {% endif %}
         {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

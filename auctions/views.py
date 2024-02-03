@@ -11,8 +11,8 @@ from .models import User, Category,Auction, Bid
 
 def index(request):
     data = {}
-    for entry in Bid.objects.values('auction').annotate(maxbid=Max('ammount')):
-        data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
+    #for entry in Bid.objects.filter(auction__in=Auction.objects.filter(active=True)).values('auction').annotate(maxbid=Max('ammount')):
+    #    data[Auction.objects.get(id=entry["auction"])]=entry["maxbid"]
     return render(request, "auctions/index.html",{
         "entries": data
     })
@@ -106,6 +106,7 @@ def auction(request,id):
         "auction": auction,
         "bid": bid,
         "logged" : True,
+        "isAuthor": auction.author == request.user,
         "watchlist": auction in request.user.watchlist.all()
     })
     except Exception as e:
