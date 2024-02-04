@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 
-from .models import User, Category,Auction, Bid
+from .models import *
 
 def index(request):
     data = {}
@@ -89,10 +89,21 @@ def remove(request,id):
         request.user.watchlist.remove(Auction.objects.get(pk=id))
     return HttpResponseRedirect(reverse("auction",args={id}))
 
+class BidForm(forms.Form):
+    ammount = forms.DecimalField(min_value=0,widget=forms.NumberInput(attrs=common|{"placeholder":"Bid"}))
 
 def auction(request,id):
+    message = ""
     if request.method == "POST":
-        print("post")
+        form = BidForm(request.POST)
+        if form.is_valid():
+            auction = Auction.objects.get(pk=id)
+            topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0].ammount
+            if form.cleaned_data["ammount"]>topbid:
+                bid = Bid(user=request.user,auction=auction,ammount=form.cleaned_data["ammount"])
+                bid.save()
+            else:
+                message = "Your bid must be higher than the current top bid"
     try:
         auction = Auction.objects.get(pk=id)
         topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0].ammount
@@ -101,14 +112,17 @@ def auction(request,id):
         else:
             bid = topbid
         if request.user.is_anonymous:
-            return render(request,"auctions/auction.html",{"auction": auction,"bid": bid,"logged" : False})
+            return render(request,"auctions/auction.html",{"auction": auction,"bid": bid,"logged" : False,"comments": Comment.objects.filter(auction=auction)})
         
         return render(request,"auctions/auction.html",{
         "auction": auction,
         "bid": bid,
         "logged" : True,
         "isAuthor": auction.author == request.user,
-        "watchlist": auction in request.user.watchlist.all()
+        "watchlist": auction in request.user.watchlist.all(),
+        "form": BidForm(),
+        "message": message,
+        "comments": Comment.objects.filter(auction=auction)
     })
     except Exception as e:
         print(e)

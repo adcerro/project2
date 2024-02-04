@@ -1,16 +1,30 @@
 {% extends 'auctions/layout.html'%}
 {% block body %}
 <div class="row my-3">
-    <div class="col-4">
+    <div class="col-5">
         <img class="img-fluid"src="{{auction.image}}">
     </div>
-    <div class="col-8">
+    <div class="col-7">
         <h1>{{auction.product}}</h1>
         <p>{{auction.description}}</p>
         <p>Listed by {{auction.author}}</p>
         <p>Category: {{auction.category}}</p>
         <p>Highest bid: <strong>${{bid}}</strong></p>
         {% if logged %}
+        <form method="post" class="row g-3 mb-2">
+            {% csrf_token %}
+            <div class="col-auto">
+                {{form.ammount}}
+            </div>
+            <div class="col-auto">
+                <input type="submit" class="btn btn-primary" value="Place Bid">
+            </div>
+        </form>
+        {% if message != '' %}
+        <div class="alert alert-danger" role="alert">
+            {{message}}
+        </div>
+        {% endif %}
         <div class="row my-1">
             <div class="col">
             {% if watchlist %}
@@ -40,4 +54,18 @@
         {% endif %}
     </div>
 </div>
+<h2>Comments</h2>
+{% for comment in comments%}
+<div class="card">
+    <div class="card-header">
+      {{comment.rating}}
+    </div>
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p>{{comment.comment}}</p>
+        <footer class="blockquote-footer"><cite title="Source Title">{{comment.user}}</cite></footer>
+      </blockquote>
+    </div>
+  </div>
+{% endfor%}
 {% endblock %}

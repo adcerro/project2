@@ -35,4 +35,4 @@ class Comment(models.Model):
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="comments")
     comment = models.TextField()
     def __str__(self):
-        return f"{self.user} \n {self.comment}"
+        return f"{self.user} said: \n {self.comment}"
