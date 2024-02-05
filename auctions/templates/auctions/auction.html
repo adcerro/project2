@@ -1,19 +1,19 @@
 {% extends 'auctions/layout.html'%}
 {% block body %}
-<div class="row my-3">
+<div class="row justify-content-center my-3">
     <div class="col-5">
         <img class="img-fluid"src="{{auction.image}}">
     </div>
-    <div class="col-7">
+    <div class="col-5">
         <h1>{{auction.product}}</h1>
         <p>{{auction.description}}</p>
         <p>Listed by {{auction.author}}</p>
         <p>Category: {{auction.category}}</p>
         <p>Highest bid: <strong>${{bid}}</strong></p>
         {% if logged %}
-        <form method="post" class="row g-3 mb-2">
+        <form method="post" class="row row-cols-auto g-3 mb-2">
             {% csrf_token %}
-            <div class="col-auto">
+            <div class="col-lg me-auto">
                 {{form.ammount}}
             </div>
             <div class="col-auto">
@@ -25,8 +25,8 @@
             {{message}}
         </div>
         {% endif %}
-        <div class="row my-1">
-            <div class="col">
+        <div class="row row-cols-auto g-2">
+            <div class="col-lg">
             {% if watchlist %}
                 <form method="post" action="{% url 'remove' auction.id%}">
                 {% csrf_token %}
@@ -39,6 +39,7 @@
                 </form>
             {% endif %}
             </div>
+            <div class="col me-auto"></div>
             {% if isAuthor and auction.active %}
             <div class="col">
                 <form method="post" action="{% url 'close'  auction.id%}">
@@ -46,15 +47,15 @@
                 <button type="submit" class="btn btn-danger">Close Auction</button>
                 </form>
             </div>
-            <div class="col col-lg-7">
-
-            </div>
             {% endif %}
         </div>
         {% endif %}
     </div>
 </div>
 <h2>Comments</h2>
+{% if not comments%}
+<p>No comments yet</p>
+{% endif %}
 {% for comment in comments%}
 <div class="card">
     <div class="card-header">
