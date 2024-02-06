@@ -92,6 +92,10 @@ def remove(request,id):
 class BidForm(forms.Form):
     ammount = forms.DecimalField(min_value=0,widget=forms.NumberInput(attrs=common|{"placeholder":"Bid"}))
 
+class CommentForm(forms.Form):
+    rating = forms.ChoiceField(widget=forms.Select(attrs={"class":"form-select"}),choices=models.IntegerChoices("stars","✨ ✨✨ ✨✨✨ ✨✨✨✨ ✨✨✨✨✨"))
+    comment = forms.CharField(widget=forms.Textarea(attrs=common|{"placeholder":"Comment"}))
+
 def auction(request,id):
     message = ""
     if request.method == "POST":
@@ -99,16 +103,23 @@ def auction(request,id):
         if form.is_valid():
             auction = Auction.objects.get(pk=id)
             topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0].ammount
-            if form.cleaned_data["ammount"]>topbid:
+            if form.cleaned_data["ammount"]>topbid and auction.active == True:
                 bid = Bid(user=request.user,auction=auction,ammount=form.cleaned_data["ammount"])
                 bid.save()
+            elif not auction.active:
+                message = "This auction is closed"
             else:
                 message = "Your bid must be higher than the current top bid"
+        else:
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = Comment(user=request.user,auction=Auction.objects.get(pk=id),comment=form.cleaned_data["comment"],rating=form.cleaned_data["rating"])
+                comment.save()
     try:
         auction = Auction.objects.get(pk=id)
-        topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0].ammount
-        if not topbid or topbid<auction.initialBid:
-            bid = auction.initialBid
+        topbid = Bid.objects.filter(auction=auction).order_by("-ammount")[0]
+        if not topbid.ammount or topbid.ammount<auction.initialBid:
+            bid = Bid(auction=auction,ammount=auction.initialBid,user= auction.author)
         else:
             bid = topbid
         if request.user.is_anonymous:
@@ -118,10 +129,11 @@ def auction(request,id):
         "auction": auction,
         "bid": bid,
         "logged" : True,
-        "isAuthor": auction.author == request.user,
+        "user":request.user,
         "watchlist": auction in request.user.watchlist.all(),
         "form": BidForm(),
         "message": message,
+        "commentForm" : CommentForm(),
         "comments": Comment.objects.filter(auction=auction)
     })
     except Exception as e:

@@ -30,7 +30,7 @@ class Bid(models.Model):
         return f"{self.user} - {self.ammount}"
 
 class Comment(models.Model):
-    rating = models.IntegerChoices("stars","✨ ✨✨ ✨✨✨ ✨✨✨✨ ✨✨✨✨✨")
+    rating = models.IntegerField(choices=models.IntegerChoices("stars","✨ ✨✨ ✨✨✨ ✨✨✨✨ ✨✨✨✨✨"))
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="comments",null=True)
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="comments")
     comment = models.TextField()

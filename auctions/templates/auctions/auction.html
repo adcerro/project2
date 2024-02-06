@@ -9,7 +9,7 @@
         <p>{{auction.description}}</p>
         <p>Listed by {{auction.author}}</p>
         <p>Category: {{auction.category}}</p>
-        <p>Highest bid: <strong>${{bid}}</strong></p>
+        <p>Highest bid: <strong>${{bid.ammount}}</strong></p>
         {% if logged %}
         <form method="post" class="row row-cols-auto g-3 mb-2">
             {% csrf_token %}
@@ -40,7 +40,7 @@
             {% endif %}
             </div>
             <div class="col me-auto"></div>
-            {% if isAuthor and auction.active %}
+            {% if auction.author == user and auction.active %}
             <div class="col">
                 <form method="post" action="{% url 'close'  auction.id%}">
                 {% csrf_token %}
@@ -49,9 +49,27 @@
             </div>
             {% endif %}
         </div>
+        {% if not auction.active and bid.user == request.user%}
+        <div class="alert alert-success my-2" role="alert">
+            You have won the auction!
+        </div>
+        {% endif %}
         {% endif %}
     </div>
 </div>
+{% if logged %}
+<h2>Make a Comment</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group my-3">
+    {{commentForm.rating.as_field_group}}
+    </div>
+    <div class="form-group my-3">
+    {{commentForm.comment}}
+    </div>
+    <button type="submit" class="btn btn-primary">Post Comment</button>
+</form>
+{% endif %}
 <h2>Comments</h2>
 {% if not comments%}
 <p>No comments yet</p>
@@ -59,7 +77,7 @@
 {% for comment in comments%}
 <div class="card">
     <div class="card-header">
-      {{comment.rating}}
+      Rating: {{comment.rating}} Stars
     </div>
     <div class="card-body">
       <blockquote class="blockquote mb-0">
